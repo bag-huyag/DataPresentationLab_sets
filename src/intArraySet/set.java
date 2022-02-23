@@ -21,18 +21,22 @@ public class set {
         if ((from == 0 && to == 0) || (from > to)) return;
         start = from;
         end = to;
-        array = new int[end/32 + 1];
+
         shift = 0;
         zeroPosition = 0;
 
-        if (from < 0){
-            array = new int[end/32 - start/32 + 2];
-            zeroPosition = Math.abs(from)/32;
+        if (start == 0){
+            array = new int[end/32 + 1];
         }
 
-        if (from > 0) {
+        if (start < 0){
+            array = new int[end/32 - start/32 + 2];
+            zeroPosition = Math.abs(start)/32;
+        }
+
+        if (start > 0) {
             array = new int[end/32 - start/32 +  1];
-            shift = from % 32;
+            shift = start % 32;
         }
 
     }
@@ -152,7 +156,7 @@ public class set {
 
             for (int i = intersectionEnd; i < biggerSet.array.length; i++){
                 if (biggerSet.array[i] != 0)
-                    return false
+                    return false;
             }
 
             return true;
@@ -185,8 +189,7 @@ public class set {
 
 
         for (int i = intersectionStart; i <= intersectionEnd; i++){
-            if (array[firstSetStart] - array[secondSetStart] != 0)
-            //how to compare
+
         }
 
         return true;
