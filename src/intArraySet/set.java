@@ -2,7 +2,7 @@ package intArraySet;
 
 
 public class set {
-    private class position{
+    private static class position{
         int index;
         int pos;
 
@@ -11,7 +11,7 @@ public class set {
             pos = p;
         }
     }
-
+    private static final int leftBit = 0b10000000000000000000000000000000;
     private int[] array;
     private int shift = 0; //shift in INT
     private int zeroPosition = 0; //array index of zero
@@ -60,14 +60,14 @@ public class set {
         if (q < start || q > end) return;
         position p = findInArray(q);
 
-        array[p.index] |= 0b10000000000000000000000000000000 >>> p.pos;
+        array[p.index] |= leftBit >>> p.pos;
     }
 
     public void delete(int q){
         if (q < start || q > end) return;
         position p = findInArray(q);
 
-        array[p.index] &= ~(0b10000000000000000000000000000000 >>> p.pos);
+        array[p.index] &= ~(leftBit >>> p.pos);
     }
 
     public void assign(set a){
@@ -85,7 +85,7 @@ public class set {
             if (array[i] != 0){
                 int mask;
                 for (int j = 0; j < 32; j++){
-                    mask = 0b10000000000000000000000000000000 >> j;
+                    mask = leftBit >> j;
                     if ((array[i] & mask) != 0){
                         return (32 * i - shift + j );
                     }
