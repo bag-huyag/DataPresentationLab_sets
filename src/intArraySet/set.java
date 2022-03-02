@@ -30,7 +30,8 @@ public class set {
         }
 
         if (start < 0){
-            array = new int[end/32 - start/32 + 2];
+            int len = end%32 == 0 ? end/32 - start/32 + 1 : end/32 - start/32 + 2;
+            array = new int[len];
             zeroPosition = Math.abs(start)/32;
         }
 
@@ -50,7 +51,7 @@ public class set {
         System.out.println("Zero at: " + zeroPosition);
         System.out.println("Start: " + start + " | End: " + end);
         for (int i = 0; i < array.length; i ++)
-            System.out.print(array[i] + " ");
+            System.out.print(Integer.toBinaryString(array[i]) + " ");
         System.out.println();
 
     }
@@ -114,56 +115,41 @@ public class set {
     }
 
     public boolean equal(set a){
+        if (a == this) return true;
+
         if (end < a.start || a.end < start)
             return false;
 
-        //equal sets
-        if (start == a.start && end == a.end){
-            for (int i = 0; i < array.length; i++)
-                if (array[i] != a.array[i])
-                    return false;
-
-            return true;
+        // checking left part for zeroes
+        // we should find the set, that has lower start
+        set leftSet = start < a.start? this : a;
+        set secondSet = start < a.start? a : this;
+        int intersectionStart = leftSet.findInArray(a.start).index;
+        for (int i = 0; i < intersectionStart; i++){
+            if (leftSet.array[i] != 0)
+                return false;
         }
 
-        //one set - other's subset
-        if ((start > a.start && end < a.end) || (a.start > start && a.end < end)){
-            set biggerSet, smallerSet;
-            if (a.start > start){
-                biggerSet = this;
-                smallerSet = a;
-            }
-            else {
-                biggerSet = a;
-                smallerSet = this;
-            }
 
-            int intersectionStart = findInArray(smallerSet.start).index;
-            int intersectionEnd = findInArray(smallerSet.end).index;
-
-            for (int i = 0; i < intersectionStart; i++){
-                if (biggerSet.array[i] != 0)
-                    return false;
-            }
-
-            int counter = 0;
-            for (int i = intersectionStart; i < intersectionEnd; i++){
-                if (biggerSet.array[i] != smallerSet.array[counter])
-                    return false;
-
-                counter++;
-            }
-
-            for (int i = intersectionEnd; i < biggerSet.array.length; i++){
-                if (biggerSet.array[i] != 0)
-                    return false;
-            }
-
-            return true;
+        //going through intersection
+        int counter = 0;
+        for (int i = intersectionStart; i < leftSet.end; i++){
+            if (leftSet.array[i] != secondSet.array[counter])
+                return false;
+            counter++;
         }
 
-        //more variants
-        return false;
+
+        //checking right part of array
+        set rightSet = end < a.end? a : this;
+        leftSet = end < a.end? this : a;
+        int intersectionEnd = rightSet.findInArray(leftSet.end).index;
+        for (int i = intersectionEnd + 1; i < rightSet.findInArray(end).index; i++){
+            if (rightSet.array[i] != 0)
+                return false;
+        }
+
+        return true;
     }
 
     public void makeNull(){
@@ -173,6 +159,7 @@ public class set {
     }
 
     public boolean member(int q){
+        if(isEmpty()) return false;
         if (q < start || q > end) return false;
         position p = findInArray(q);
         return isTaken(p);
@@ -189,10 +176,62 @@ public class set {
 
 
         for (int i = intersectionStart; i <= intersectionEnd; i++){
-
+            if ((array[firstSetStart] & a.array[secondSetStart]) != 0)
+                return false;
+            firstSetStart++;
+            secondSetStart++;
         }
 
         return true;
+    }
+
+    public set find(set a, int x){
+        if (member(x)) return this;
+        if (a.member(x)) return a;
+        return null;
+    }
+
+    public set merge(set a){
+        set n = new set(Math.min(a.start, start), Math.max(a.end, end));
+
+        int counter = 0;
+        for (int i = n.findInArray(start).index; i <= n.findInArray(end).index; i++){
+            n.array[i] |= array[counter];
+            counter++;
+        }
+
+        counter = 0;
+        for (int i = n.findInArray(a.start).index; i <= n.findInArray(a.end).index; i++){
+            n.array[i] |= a.array[counter];
+            counter++;
+        }
+
+        return n;
+    }
+
+    public set union(set a){
+        return merge(a);
+    }
+
+    public set intersection(set a){
+        if (a.end < start || a.start > end) return null;
+
+        int intersectionStart = Math.max(a.start, start);
+        int intersectionEnd = Math.min(a.end, end);
+
+        set c = new set(intersectionStart, intersectionEnd);
+
+        int firstSetStart = findInArray(intersectionStart).index;
+        int secondSetStart = a.findInArray(intersectionStart).index;
+
+
+        for (int i = intersectionStart; i <= intersectionEnd; i++){
+            c.array[i] = array[firstSetStart] & a.array[secondSetStart];
+            firstSetStart++;
+            secondSetStart++;
+        }
+
+        return c;
     }
 
     private boolean isTaken(position q){
@@ -208,9 +247,16 @@ public class set {
             if (q < 0)
                 return new position(q * (-1) / 32, q * (-1) % 32);
 
-            return new position(Math.abs(q + start) / 32, Math.abs(q + start) % 32);
+            return new position((Math.abs(q) + Math.abs(start)) / 32, (Math.abs(q) + Math.abs(start)) % 32);
         }
 
         return new position((q - start) / 32, (q - start) % 32);
+    }
+
+    private boolean isEmpty(){
+        for (int i = 0; i < array.length; i++){
+            if (array[i] != 0) return false;
+        }
+        return true;
     }
 }
