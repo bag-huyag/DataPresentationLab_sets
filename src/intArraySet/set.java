@@ -124,7 +124,7 @@ public class set {
         // we should find the set, that has lower start
         set leftSet = start < a.start? this : a;
         set secondSet = start < a.start? a : this;
-        int intersectionStart = leftSet.findInArray(a.start).index;
+        int intersectionStart = leftSet.findInArray(secondSet.start).index;
         for (int i = 0; i < intersectionStart; i++){
             if (leftSet.array[i] != 0)
                 return false;
@@ -132,20 +132,21 @@ public class set {
 
 
         //going through intersection
-        int counter = 0;
-        for (int i = intersectionStart; i < leftSet.end; i++){
-            if (leftSet.array[i] != secondSet.array[counter])
+        int secondSetIntersectionStart = leftSet.findInArray(intersectionStart).index;
+        int intersectionEnd = secondSet.findInArray(Math.min(end, a.end)).index;
+        for (int i = intersectionStart; i < intersectionEnd; i++){
+            if (leftSet.array[i] != secondSet.array[secondSetIntersectionStart])
                 return false;
-            counter++;
+            secondSetIntersectionStart++;
         }
 
 
         //checking right part of array
-        set rightSet = end < a.end? a : this;
+        secondSet = end < a.end? a : this;
         leftSet = end < a.end? this : a;
-        int intersectionEnd = rightSet.findInArray(leftSet.end).index;
-        for (int i = intersectionEnd + 1; i < rightSet.findInArray(end).index; i++){
-            if (rightSet.array[i] != 0)
+        intersectionEnd = secondSet.findInArray(leftSet.end).index;
+        for (int i = intersectionEnd + 1; i < secondSet.findInArray(end).index; i++){
+            if (secondSet.array[i] != 0)
                 return false;
         }
 
@@ -234,8 +235,35 @@ public class set {
         return c;
     }
 
+    public set difference(set a){
+        set newSet = new set(start, end);
+
+        if (a == this) return newSet;
+
+        newSet.assign(this);
+
+        //no intersection between two sets
+        if(end < a.start || a.end < start){
+            return newSet;
+        }
+
+        int secondSetStart = a.findInArray(start).index;
+        int intersectionEnd;
+        if (end <= a.end)
+            intersectionEnd = end;
+        else
+            intersectionEnd = findInArray(a.end).index;
+
+        for (int i = 0; i < intersectionEnd; i++){
+            newSet.array[i] = array[i] & a.array[secondSetStart];
+            secondSetStart++;
+        }
+
+        return newSet;
+    }
+
     private boolean isTaken(position q){
-        int mask = 0b10000000000000000000000000000000 >>> q.pos;
+        int mask = leftBit >>> q.pos;
         return !((array[q.index] & mask) == 0);
     }
 
