@@ -13,7 +13,6 @@ public class set {
     }
     private static final int leftBit = 0b10000000000000000000000000000000;
     private int[] array;
-    private int shift = 0; //shift in INT
     private int zeroPosition = 0; //array index of zero
     private int start, end;
 
@@ -22,12 +21,7 @@ public class set {
         start = from;
         end = to;
 
-        shift = 0;
         zeroPosition = 0;
-
-        if (start == 0){
-            array = new int[end/32 + 1];
-        }
 
         if (start < 0){
             int len = end%32 == 0 ? end/32 - start/32 + 1 : end/32 - start/32 + 2;
@@ -35,9 +29,8 @@ public class set {
             zeroPosition = Math.abs(start)/32;
         }
 
-        if (start > 0) {
+        if (start >= 0) {
             array = new int[end/32 - start/32 +  1];
-            shift = start % 32;
         }
 
     }
@@ -46,8 +39,13 @@ public class set {
         new set(-100,100);
     }
 
+    public set(set a){
+        start = a.start;
+        end = a.end;
+        zeroPosition = a.zeroPosition;
+    }
+
     public void printData(){
-        System.out.println("Shift: " + shift);
         System.out.println("Zero at: " + zeroPosition);
         System.out.println("Start: " + start + " | End: " + end);
         for (int i = 0; i < array.length; i ++)
@@ -71,11 +69,12 @@ public class set {
     }
 
     public void assign(set a){
-        new set(a.start, a.end);
-        shift = a.shift;
+        start = a.start;
+        end = a.start;
         zeroPosition = a.zeroPosition;
 
-        for (int i = 0; i < a.array.length; i ++){
+        array = new int[a.array.length];
+        for (int i = 0; i < array.length; i ++){
             array[i] = a.array[i];
         }
     }
@@ -87,7 +86,7 @@ public class set {
                 for (int j = 0; j < 32; j++){
                     mask = leftBit >> j;
                     if ((array[i] & mask) != 0){
-                        return (32 * i - shift + j );
+                        return (32 * i - (start > 0 ? 0 : start % 32) + j );
                     }
                 }
 
@@ -97,18 +96,17 @@ public class set {
     }
 
     public int max(){
-        for (int i = array.length - 1; i >= 0; i--){
-            if (array[i] != 0){
+        for (int i = array.length - 1; i >= 0; i--) {
+            if (array[i] != 0) {
                 int mask;
                 int maskCounter = 0;
-                for (int j = 31; j >= 0; j--){
+                for (int j = 31; j >= 0; j--) {
                     mask =  1 << maskCounter;
                     if ((array[i] & mask) != 0){
                         return (32 * i + j);
                     }
                     maskCounter++;
                 }
-
             }
         }
         throw new myException("The set is empty");
@@ -187,34 +185,35 @@ public class set {
     }
 
     public set find(set a, int x){
-        if (member(x)) return this;
-        if (a.member(x)) return a;
+        if(isEmpty() || (x < start || x > end)){
+            position p = findInArray(x);
+            if (isTaken(p)) {
+                return this;
+            }
+        }
+
+        if(a.isEmpty() || (x < a.start || x > a.end)){
+            position p = a.findInArray(x);
+            if (a.isTaken(p)) {
+                return a;
+            }
+        }
+
         return null;
     }
 
     public set merge(set a){
-        set n = new set(Math.min(a.start, start), Math.max(a.end, end));
-
-        int counter = 0;
-        for (int i = n.findInArray(start).index; i <= n.findInArray(end).index; i++){
-            n.array[i] |= array[counter];
-            counter++;
-        }
-
-        counter = 0;
-        for (int i = n.findInArray(a.start).index; i <= n.findInArray(a.end).index; i++){
-            n.array[i] |= a.array[counter];
-            counter++;
-        }
-
-        return n;
+        if (a == this) return new set(a);
+        return mergeSets(a);
     }
 
     public set union(set a){
-        return merge(a);
+        if (a == this) return new set(a);
+        return mergeSets(a);
     }
 
     public set intersection(set a){
+        if (a == this) return new set(a);
         if (a.end < start || a.start > end) return null;
 
         int intersectionStart = Math.max(a.start, start);
@@ -236,11 +235,9 @@ public class set {
     }
 
     public set difference(set a){
-        set newSet = new set(start, end);
+        if (a == this) return new set(start, end);
 
-        if (a == this) return newSet;
-
-        newSet.assign(this);
+        set newSet = new set(a);
 
         //no intersection between two sets
         if(end < a.start || a.end < start){
@@ -255,7 +252,7 @@ public class set {
             intersectionEnd = findInArray(a.end).index;
 
         for (int i = 0; i < intersectionEnd; i++){
-            newSet.array[i] = array[i] & a.array[secondSetStart];
+            newSet.array[i] = array[i] & ~(a.array[secondSetStart]) ;
             secondSetStart++;
         }
 
@@ -286,5 +283,23 @@ public class set {
             if (array[i] != 0) return false;
         }
         return true;
+    }
+
+    private set mergeSets(set a){
+        set n = new set(Math.min(a.start, start), Math.max(a.end, end));
+
+        int counter = 0;
+        for (int i = n.findInArray(start).index; i <= n.findInArray(end).index; i++){
+            n.array[i] |= array[counter];
+            counter++;
+        }
+
+        counter = 0;
+        for (int i = n.findInArray(a.start).index; i <= n.findInArray(a.end).index; i++){
+            n.array[i] |= a.array[counter];
+            counter++;
+        }
+
+        return n;
     }
 }
