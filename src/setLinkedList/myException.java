@@ -1,4 +1,4 @@
-package intArraySet;
+package setLinkedList;
 
 public class myException extends RuntimeException{
     public myException(String errorMessage){

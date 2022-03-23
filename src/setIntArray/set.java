@@ -1,4 +1,4 @@
-package intArraySet;
+package setIntArray;
 
 
 public class set {
@@ -43,9 +43,14 @@ public class set {
         start = a.start;
         end = a.end;
         zeroPosition = a.zeroPosition;
+        array = new int[a.array.length];
+        for (int i = 0; i < array.length; i ++){
+            array[i] = a.array[i];
+        }
+
     }
 
-    public void printData(){
+    public void print(){
         System.out.println("Zero at: " + zeroPosition);
         System.out.println("Start: " + start + " | End: " + end);
         for (int i = 0; i < array.length; i ++)
@@ -113,6 +118,7 @@ public class set {
     }
 
     public boolean equal(set a){
+        if (a == null) throw new myException("");
         if (a == this) return true;
 
         if (end < a.start || a.end < start)
@@ -128,7 +134,6 @@ public class set {
                 return false;
         }
 
-
         //going through intersection
         int secondSetIntersectionStart = leftSet.findInArray(intersectionStart).index;
         int intersectionEnd = secondSet.findInArray(Math.min(end, a.end)).index;
@@ -137,7 +142,6 @@ public class set {
                 return false;
             secondSetIntersectionStart++;
         }
-
 
         //checking right part of array
         secondSet = end < a.end? a : this;
