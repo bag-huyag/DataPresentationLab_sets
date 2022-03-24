@@ -6,14 +6,14 @@ public class dictionary {
         element next;
 
         public element(){
-            name = new char[10];
+            name = null;
             next = null;
         }
 
         public element(char[] n, element nxt){
             next = nxt;
             name = new char[10];
-            copyArrays(n, name);
+            copyCharArrays(n, name);
         }
 
         public void setName(char[] n){
@@ -21,10 +21,10 @@ public class dictionary {
                 name = null;
                 return;
             }
-            copyArrays(n, name);
+            copyCharArrays(n, name);
         }
 
-        public static void copyArrays(char[] from, char[] to){
+        public static void copyCharArrays(char[] from, char[] to){
             for (int i = 0; i < from.length; i++){
                 to[i] = from[i];
             }
@@ -41,20 +41,13 @@ public class dictionary {
             }
             if (counter != 10) System.out.println();
         }
-
-        public boolean isEmpty(){
-            for (int i = 0; i < name.length; i++){
-                if (name[i] != '\u0000') return false;
-            }
-            return true;
-        }
     }
 
     private element array[];
-    private final int size = 10;
+    private final int SIZE = 10;
 
     public dictionary(int a){
-        array = new element[a/size];
+        array = new element[a/ SIZE];
         for (int i = 0; i < array.length; i++){
             array[i] = new element();
         }
@@ -63,49 +56,49 @@ public class dictionary {
     public void insert(char[] name) {
         int place = hashFunc(name);
 
-        if (array[place].isEmpty()) {
+        if (array[place].name == null) {
+            array[place].name = new char[SIZE];
             array[place].setName(name);
+            return;
         }
 
-        element q = array[place];
-        element q2 = null;
-        while (q != null){
-            if (compareCharArrays(q.name, name))
-                return;
-            q2 = q;
-            q = q.next;
+        if (searchPrev(name, place) == null) {
+            array[place].next = new element(name, array[place].next);
         }
-
-        q2.next = new element(name, null);
     }
 
     public void insert(String str){
-        if (str.length() > size) return;
+        if (str.length() > SIZE) return;
         insert(convertStringToCharArray(str));
     }
 
     public void delete(char[] name) {
         int place = hashFunc(name);
 
-        if (array[place].isEmpty()) return;
+        if (array[place].name == null) return;
 
-        if (compareCharArrays(array[place].name, name))
-            array[place].setName(new char[size]);
-
-        element q = array[place];
-        element q2 = null;
-        while (q != null){
-            if (compareCharArrays(q.name, name)) {
-                q2.next = q.next;
-                return;
+        if (compareCharArrays(array[place].name, name)){
+            if (array[place].name == null){
+                array[place].name = null;
+                array[place].next = null;
             }
-            q2 = q;
-            q = q.next;
+            else {
+                array[place].setName(array[place].next.name);
+                array[place].next = array[place].next.next;
+            }
+
+            return;
         }
+
+        element temp = searchPrev(name, place);
+        if (temp != null){
+            temp.next = temp.next.next;
+        }
+
     }
 
     public void delete(String str){
-        if (str.length() > size) return;
+        if (str.length() > SIZE) return;
         delete(convertStringToCharArray(str));
     }
 
@@ -115,23 +108,15 @@ public class dictionary {
         if (compareCharArrays(array[place].name, name))
             return true;
 
-        element q = array[place];
-        while (q != null){
-            if (compareCharArrays(q.name, name)) {
-                return true;
-            }
-            q = q.next;
-        }
-
-        return false;
+        return (searchPrev(name, place) != null);
     }
 
     public boolean member(String str){
-        if (str.length() > size) return false;
+        if (str.length() > SIZE) return false;
         return member(convertStringToCharArray(str));
     }
 
-    public void makenull(){
+    public void makeNull(){
         for (int i = 0; i < array.length; i++){
             array[i].setName(null);
             array[i].next = null;
@@ -157,7 +142,7 @@ public class dictionary {
     }
 
     private boolean compareCharArrays(char[] a, char[] b){
-        for (int i = 0; i < size; i++){
+        for (int i = 0; i < SIZE; i++){
             if (a[i] != b[i])
                 return false;
         }
@@ -165,8 +150,22 @@ public class dictionary {
     }
 
     private char[] convertStringToCharArray(String str){
-        char[] name = new char[size];
-        element.copyArrays(str.toCharArray(), name);
+        char[] name = new char[SIZE];
+        element.copyCharArrays(str.toCharArray(), name);
         return name;
+    }
+
+    private element searchPrev(char[] name, int place){
+        element q = array[place];
+        element q2 = null;
+        while (q != null){
+            if (compareCharArrays(q.name, name)) {
+                return q2;
+            }
+            q2 = q;
+            q = q.next;
+        }
+
+        return null;
     }
 }

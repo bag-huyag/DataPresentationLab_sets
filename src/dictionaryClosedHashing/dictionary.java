@@ -2,10 +2,10 @@ package dictionaryClosedHashing;
 
 public class dictionary {
     private char[][] array;
-    private final static int size = 10;
+    private final static int SIZE = 10;
 
     public dictionary(int a){
-        array = new char[a/size][size];
+        array = new char[a/ SIZE][];
     }
 
     public void insert(char[] name) {
@@ -13,21 +13,18 @@ public class dictionary {
         int number = place;
         int counter = 0;
         int deleted = -1;
-        boolean foundDeleted = false;
-
 
         place = hashFunc(name, ++counter);
 
         while (place != number){
 
             if (array[place] == null) {
-                array[place] = new char[10];
-                copyArrays(name, array[place]);
+                array[place] = new char[SIZE];
+                copyCharArrays(name, array[place]);
                 return;
             }
 
-            if (!foundDeleted & isDeleted(array[place])){
-                foundDeleted = true;
+            if (deleted == -1 && isDeleted(array[place])){
                 deleted = place;
             }
 
@@ -35,53 +32,33 @@ public class dictionary {
         }
 
         if (deleted != -1){
-            copyArrays(name, array[deleted]);
+            copyCharArrays(name, array[deleted]);
         }
     }
 
     public void insert(String str) {
-        if (str.length() > size) return;
+        if (str.length() > SIZE) return;
         insert(convertStringToCharArray(str));
     }
 
     public void delete(char[] name) {
-        int place = hashFunc(name, 0);
-        int start = place;
-        int counter = 0;
-        place = hashFunc(name, ++counter);
-
-        while (array[place] != null || place != start) {
-            if (compareCharArrays(array[place], name)) {
-                array[place] = new char[10];
-                return;
-            }
-            place = hashFunc(name,++counter);
+        int temp = search(name);
+        if (temp != -1){
+            array[temp][0] = '\u0000';
         }
     }
 
     public void delete(String str) {
-        if (str.length() > size) return;
+        if (str.length() > SIZE) return;
         delete(convertStringToCharArray(str));
     }
 
     public boolean member(char[] name) {
-        int place = hashFunc(name, 0);
-        int start = place;
-        int counter = 0;
-        place = hashFunc(name, ++counter);
-
-        while (array[place] != null || place != start){
-            if (compareCharArrays(array[place], name)) {
-                return true;
-            }
-            place = hashFunc(name, ++counter);
-        }
-
-        return false;
+        return search(name) != -1;
     }
 
     public boolean member(String str) {
-        if (str.length() > size) return false;
+        if (str.length() > SIZE) return false;
         return member(convertStringToCharArray(str));
     }
 
@@ -107,33 +84,30 @@ public class dictionary {
     }
 
     private char[] convertStringToCharArray(String str){
-        char[] name = new char[size];
-        copyArrays(str.toCharArray(), name);
+        char[] name = new char[SIZE];
+        copyCharArrays(str.toCharArray(), name);
         return name;
     }
 
-    private void copyArrays(char[] from, char[] to){
+    private void copyCharArrays(char[] from, char[] to){
             for (int i = 0; i < from.length; i++){
                 to[i] = from[i];
             }
     }
 
     public boolean isDeleted(char[] a){
-        for (int i = 0; i < a.length; i++) {
-            if (a[i] != '\u0000') return false;
-        }
-        return true;
+        return a[0] == '\u0000';
     }
 
     private boolean compareCharArrays(char[] a, char[] b){
-        for (int i = 0; i < size; i++){
+        for (int i = 0; i < SIZE; i++){
             if (a[i] != b[i])
                 return false;
         }
         return true;
     }
 
-    public void printName(char[] name){
+    private void printName(char[] name){
             if (name == null) return;
             int counter = 0;
             for (int i = 0; i < name.length; i++){
@@ -143,5 +117,21 @@ public class dictionary {
                 else counter ++;
             }
             if (counter != 10) System.out.println();
+    }
+
+    private int search(char []name) {
+        int place = hashFunc(name, 0);
+        int start = place;
+        int counter = 0;
+        place = hashFunc(name, ++counter);
+
+        while (array[place] != null || place != start){
+            if (compareCharArrays(array[place], name)) {
+                return place;
+            }
+            place = hashFunc(name, ++counter);
         }
+
+        return -1;
+    }
 }
