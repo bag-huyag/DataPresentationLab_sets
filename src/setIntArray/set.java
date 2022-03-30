@@ -24,15 +24,16 @@ public class set {
         zeroPosition = 0;
 
         if (start < 0){
-            int len = end%32 == 0 ? end/32 - start/32 + 1 : end/32 - start/32 + 2;
-            array = new int[len];
-            zeroPosition = Math.abs(start)/32;
+            int negativeLen = start >= -31? 1 : start/32;
+            int positiveLen = end <= 31 ? 1 : end/32;
+            array = new int[negativeLen + positiveLen];
+            zeroPosition = positiveLen;
         }
 
         if (start >= 0) {
             array = new int[end/32 - start/32 +  1];
+            zeroPosition = -1;
         }
-
     }
 
     public set(){
@@ -276,7 +277,7 @@ public class set {
             if (q < 0)
                 return new position(q * (-1) / 32, q * (-1) % 32);
 
-            return new position((Math.abs(q) + Math.abs(start)) / 32, (Math.abs(q) + Math.abs(start)) % 32);
+            return new position(zeroPosition + q/32, q%32);
         }
 
         return new position((q - start) / 32, (q - start) % 32);
