@@ -17,6 +17,18 @@ public class set {
         tail = null;
     }
 
+    public set(set a){
+        tail = new Node(a.tail.number, a.tail.next);
+        Node tempA = a.tail.next;
+        Node tempSelf = tail;
+        while (tempA != a.tail){
+            tempSelf.next = new Node(tempA.number, tempA.next);
+            tempA = tempA.next;
+            tempSelf = tempSelf.next;
+        }
+        tempSelf.next = tail;
+    }
+
     public void insert(int a){
         if (tail == null){
             tail = new Node(a, null);
@@ -24,8 +36,39 @@ public class set {
             return;
         }
 
-        if (searchPrev(tail, a) == null)
+        if (tail.next == tail){
+            if (a == tail.number) return;
+            if (a > tail.number){
+                tail.next = new Node(tail.number, tail);
+                tail.number = a;
+                return;
+            }
+
+            tail.next = new Node(a, tail);
+            return;
+        }
+
+        if (a > tail.number){
+            Node temp = searchPrev(tail, tail.number);
+            if (temp == null) return;
+            temp.next = new Node(tail.number, tail);
+            tail.number = a;
+            return;
+        }
+
+        Node temp = searchPlaceForInsert(tail, a);
+
+        if (temp == null) {
             tail.next = new Node(a, tail.next);
+            return;
+        }
+
+        if (temp.next.number == a){
+            return;
+        }
+
+        Node temporary = temp.next;
+        temp.next = new Node(a, temporary);
     }
 
     public void delete(int a){
@@ -111,10 +154,44 @@ public class set {
         System.out.println();
     }
 
+    public set union(set a){
+        set smaller,bigger;
+        if (tail.next.number < a.tail.next.number){
+            bigger = a;
+            smaller = this;
+        }
+        else {
+            bigger = this;
+            smaller = a;
+        }
+
+        set resultSet = new set();
+        resultSet.tail = new Node(Math.max(a.tail.number, tail.number), null);
+        resultSet.tail.next = resultSet.tail;
+
+        Node tempSmaller = smaller.tail.next;
+        Node tempBigger = bigger.tail.next;
+        Node tempResult = resultSet.tail.next;
+        if (smaller.tail.next.number != bigger.tail.next.number){
+            while (tempSmaller.number <= bigger.tail.next.number){
+                tempResult.next = new Node(tempSmaller.number, null);
+                tempSmaller = tempSmaller.next;
+                tempResult = tempResult.next;
+            }
+        }
+
+        if (tempResult.number != tempBigger.number) tempResult.next = new Node(tempBigger.number, null);
+
+        return resultSet;
+
+    }
+
     private Node searchPrev(Node pos, int n){
-        if (pos.number == n) return pos;
         Node temp = pos;
         Node temp2 = pos.next;
+        if (temp2.number == n)
+            return temp;
+
         while (temp2 != pos){
             if (temp2.number == n)
                 return temp;
@@ -123,8 +200,24 @@ public class set {
             temp2 = temp2.next;
         }
 
+        if (temp2.number == n){
+            return temp;
+        }
         return null;
     }
 
+    private Node searchPlaceForInsert(Node pos, int n){
+        if (pos.number == n) return pos;
+        Node temp = pos;
+        Node temp2 = pos.next;
+        while (temp2 != pos){
+            if (temp2.number <= n)
+                return temp;
+
+            temp = temp2;
+            temp2 = temp2.next;
+        }
+        return null;
+    }
 
 }
