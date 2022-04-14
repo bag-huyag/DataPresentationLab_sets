@@ -154,8 +154,8 @@ public class set {
         System.out.println();
     }
 
-    public set union(set a){
-        set smaller,bigger;
+    public set union(set a) {
+        /*set smaller,bigger;
         if (tail.next.number < a.tail.next.number){
             bigger = a;
             smaller = this;
@@ -182,9 +182,59 @@ public class set {
 
         if (tempResult.number != tempBigger.number) tempResult.next = new Node(tempBigger.number, null);
 
-        return resultSet;
+        return resultSet;*/
+        set set1 = this;
+        set set2 = a;
+        Node head1 = set1.tail.next;
+        Node head2 = set2.tail.next;
+        set resultSet = new set();
+        resultSet.tail = new Node(Math.max(head1.number, head2.number), null);
+        resultSet.tail.next = resultSet.tail;
+        Node temp = resultSet.tail;
 
+        if (resultSet.tail == head1) head1 = head1.next;
+        if (resultSet.tail == head2) head2 = head2.next;
+
+        while (head1 != set1.tail && head2 != set2.tail) {
+            if (head1.number < head2.number) {
+                temp.next = new Node(head1.number, resultSet.tail);
+                head1 = head1.next;
+            } else {
+                temp.next = new Node(head2.number, resultSet.tail);
+                if (head1.number == head2.number) {
+                    head1 = head1.next;
+                }
+                head2 = head2.next;
+            }
+        }
+
+        if (head1 == set1.tail){
+            while (head2 != set2.tail){
+                temp.next = new Node(head2.number, resultSet.tail);
+                head2 = head2.next;
+            }
+        }
+        else {
+            while (head1 != set1.tail){
+                temp.next = new Node(head2.number, resultSet.tail);
+                head1 = head1.next;
+            }
+        }
+
+        if (set1.tail.number > set2.tail.number){
+            temp.next = new Node(set2.tail.number, resultSet.tail);
+            resultSet.tail.next = new Node(tail.number, resultSet.tail.next);
+            resultSet.tail.number = set1.tail.number;
+        }
+        else {
+            temp.next = new Node(set1.tail.number, resultSet.tail);
+            resultSet.tail.next = new Node(tail.number, resultSet.tail.next);
+            resultSet.tail.number = set2.tail.number;
+        }
+
+        return resultSet;
     }
+
 
     private Node searchPrev(Node pos, int n){
         Node temp = pos;

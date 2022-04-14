@@ -7,12 +7,12 @@ public class test {
 
 
         s.insert(-1);
-        /*s.insert(-123);
-        s.insert(123213);*/
+        s.insert(-123);
+        s.insert(123213);
 
         s1.insert(-10);
         s1.insert(-123);
-        /*s1.insert(15);*/
+        s1.insert(15);
 
 
 
