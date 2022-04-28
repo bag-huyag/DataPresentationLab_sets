@@ -2,7 +2,8 @@ package setPartiallyOrdered;
 
 public class test {
     public static void main(String[] args) {
-        set s = new set(new int [][] {
+        set s = new set();
+        boolean ifInitialized = s.init(new int [][] {
                 {1,2},
                 {2,4},
                 {4,6},
