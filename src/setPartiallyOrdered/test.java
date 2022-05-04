@@ -20,5 +20,9 @@ public class test {
         });
 
         s.print();
+
+        s.sort();
+        System.out.println();
+        s.print();
     }
 }

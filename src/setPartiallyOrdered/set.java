@@ -43,6 +43,52 @@ public class set {
         return true;
     }
 
+    public void sort(){
+        set newSet = new set();
+        setElement q = head;
+        setElement q2 = null;
+        setElement lastInNewSet = null;
+        while (q != null){
+
+            if (q.getCount() == 0){
+                Trail tempTrail = q.getNext();
+                while (tempTrail != null){
+                    tempTrail.getId().decrement();
+                    tempTrail = tempTrail.getNext();
+                }
+                q.setNext(null);
+
+                setElement temporary = q;
+                if (q == head){
+                    head = head.getId();
+                }
+                else {
+                    q2.setId(q.getId());
+                }
+
+                if (newSet.head != null){
+                    setElement temp = lastInNewSet.getId();
+                    lastInNewSet.setId(temporary);
+                    lastInNewSet.getId().setId(temp);
+                    lastInNewSet = lastInNewSet.getId();
+                }
+                else {
+                    newSet.head = temporary;
+                    newSet.head.setId(null);
+                    lastInNewSet = newSet.head;
+                }
+                q = head;
+                q2 = null;
+                continue;
+            }
+            q2 = q;
+            q = q.getId();
+        }
+        print();
+        System.out.println();
+        head = newSet.head;
+    }
+
     public void print(){
         setElement temp = head;
         while (temp != null){
