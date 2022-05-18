@@ -56,7 +56,7 @@ public class set {
             return;
         }
 
-        Node temp = searchPlaceForInsert(tail, a);
+        Node temp = searchPlaceForInsert(tail.next, a);
 
         if (temp == null) {
             tail.next = new Node(a, tail.next);
@@ -160,7 +160,7 @@ public class set {
         Node head1 = set1.tail.next;
         Node head2 = set2.tail.next;
         set resultSet = new set();
-        resultSet.tail = new Node(Math.max(head1.number, head2.number), null);
+        resultSet.tail = new Node(Math.min(head1.number, head2.number), null);
         resultSet.tail.next = resultSet.tail;
         Node temp = resultSet.tail;
 
@@ -177,7 +177,7 @@ public class set {
             }
             temp = temp.next;
         }
-
+        System.out.println("first loop");
         resultSet.print();
 
         if (head1 == set1.tail.next){
@@ -224,7 +224,7 @@ public class set {
         Node temp = pos;
         Node temp2 = pos.next;
         while (temp2 != pos){
-            if (temp2.number <= n)
+            if (temp2.number >= n)
                 return temp;
 
             temp = temp2;
