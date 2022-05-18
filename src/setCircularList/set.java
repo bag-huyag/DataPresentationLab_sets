@@ -155,34 +155,6 @@ public class set {
     }
 
     public set union(set a) {
-        /*set smaller,bigger;
-        if (tail.next.number < a.tail.next.number){
-            bigger = a;
-            smaller = this;
-        }
-        else {
-            bigger = this;
-            smaller = a;
-        }
-
-        set resultSet = new set();
-        resultSet.tail = new Node(Math.max(a.tail.number, tail.number), null);
-        resultSet.tail.next = resultSet.tail;
-
-        Node tempSmaller = smaller.tail.next;
-        Node tempBigger = bigger.tail.next;
-        Node tempResult = resultSet.tail.next;
-        if (smaller.tail.next.number != bigger.tail.next.number){
-            while (tempSmaller.number <= bigger.tail.next.number){
-                tempResult.next = new Node(tempSmaller.number, null);
-                tempSmaller = tempSmaller.next;
-                tempResult = tempResult.next;
-            }
-        }
-
-        if (tempResult.number != tempBigger.number) tempResult.next = new Node(tempBigger.number, null);
-
-        return resultSet;*/
         set set1 = this;
         set set2 = a;
         Node head1 = set1.tail.next;
@@ -192,46 +164,37 @@ public class set {
         resultSet.tail.next = resultSet.tail;
         Node temp = resultSet.tail;
 
-        if (resultSet.tail == head1) head1 = head1.next;
-        if (resultSet.tail == head2) head2 = head2.next;
+        if (resultSet.tail.number == head1.number) head1 = head1.next;
+        if (resultSet.tail.number == head2.number) head2 = head2.next;
 
-        while (head1 != set1.tail && head2 != set2.tail) {
+        while (head1 != set1.tail.next && head2 != set2.tail.next) {
             if (head1.number < head2.number) {
                 temp.next = new Node(head1.number, resultSet.tail);
                 head1 = head1.next;
             } else {
                 temp.next = new Node(head2.number, resultSet.tail);
-                if (head1.number == head2.number) {
-                    head1 = head1.next;
-                }
                 head2 = head2.next;
             }
+            temp = temp.next;
         }
 
-        if (head1 == set1.tail){
-            while (head2 != set2.tail){
+        resultSet.print();
+
+        if (head1 == set1.tail.next){
+            while (head2 != set2.tail.next){
                 temp.next = new Node(head2.number, resultSet.tail);
                 head2 = head2.next;
+                temp = temp.next;
             }
         }
         else {
-            while (head1 != set1.tail){
-                temp.next = new Node(head2.number, resultSet.tail);
+            while (head1 != set1.tail.next){
+                temp.next = new Node(head1.number, resultSet.tail);
                 head1 = head1.next;
+                temp = temp.next;
             }
         }
-
-        if (set1.tail.number > set2.tail.number){
-            temp.next = new Node(set2.tail.number, resultSet.tail);
-            resultSet.tail.next = new Node(tail.number, resultSet.tail.next);
-            resultSet.tail.number = set1.tail.number;
-        }
-        else {
-            temp.next = new Node(set1.tail.number, resultSet.tail);
-            resultSet.tail.next = new Node(tail.number, resultSet.tail.next);
-            resultSet.tail.number = set2.tail.number;
-        }
-
+        resultSet.tail = temp;
         return resultSet;
     }
 
