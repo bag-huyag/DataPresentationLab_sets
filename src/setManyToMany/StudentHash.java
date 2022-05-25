@@ -48,8 +48,9 @@ public class StudentHash {
 
     public void print() {
         for (int i = 0; i < array.length; i++){
-            System.out.println(array[i].getStudName());;
+            System.out.print(array[i].getStudName() + " | ");
         }
+        System.out.println();
     }
 
     private int hashFunc(String name, int q) {

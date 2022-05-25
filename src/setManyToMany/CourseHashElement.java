@@ -13,6 +13,10 @@ public class CourseHashElement extends Pointer{
         return course;
     }
 
+    public void setCourse(int c) {
+        course = c;
+    }
+
     public void setNext(RegistrationRecord n) {
         next = n;
     }
