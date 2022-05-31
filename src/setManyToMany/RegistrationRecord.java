@@ -27,8 +27,6 @@ public class RegistrationRecord extends Pointer {
 
     @Override
     public boolean hasNext() {
-        return false;
+        return true;
     }
-
-
 }

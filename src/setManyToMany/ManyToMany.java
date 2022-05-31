@@ -17,18 +17,18 @@ public class ManyToMany {
         cHash.insert(3);
 
         studHash.print();
-        System.out.println();
         cHash.print();
+        System.out.println();
     }
 
     public void putStudentOnCourse(String name, int course){
-        StudentHashElement n = studHash.member(name);
-        if(n == null) return;
-        CourseHashElement c = cHash.member(course);
+        StudentHashElement c = studHash.member(name);
         if(c == null) return;
+        CourseHashElement n = cHash.member(course);
+        if(n == null) return;
 
         RegistrationRecord temp = new RegistrationRecord(
-                n.getNext() == null ? n: n.getNext(),
+                n.getNext() == null ? n : n.getNext(),
                 c.getNext() == null ? c : c.getNext());
 
         n.setNext(temp);
@@ -39,24 +39,48 @@ public class ManyToMany {
         StudentHashElement n = studHash.member(name);
         if(n == null) return;
 
-        RegistrationRecord temp = n.getNext();
-        Pointer p = temp.getCNext();
+        Pointer temp = n.getNext();
 
-        while (p != null && p.hasNext()){
-            System.out.print(findCourse(temp));
-            temp = (RegistrationRecord) temp.getSNext();
-            p = temp;
+        while (temp.hasNext()){
+            System.out.print(findCourse((RegistrationRecord) temp) + " ");
+            temp = ((RegistrationRecord) temp).getSNext();
         }
+
+        System.out.println();
+    }
+
+    public void listOfStudents(int course){
+        CourseHashElement n = cHash.member(course);
+        if(n == null) return;
+
+        Pointer temp = n.getNext();
+
+        while (temp.hasNext()){
+            System.out.print(findStudent((RegistrationRecord) temp) + " ");
+            temp = ((RegistrationRecord) temp).getCNext();
+        }
+
+        System.out.println();
     }
 
     private int findCourse(RegistrationRecord r){
         Pointer p = r.getCNext();
+
         while (p.hasNext()) {
-            p = r.getCNext();
+            p = ((RegistrationRecord) p).getCNext();
         }
-        
-        CourseHashElement temp = (CourseHashElement) p;
-        return temp.getCourse();
+
+        return (((CourseHashElement) p)).getCourse();
+    }
+
+    private String findStudent(RegistrationRecord r){
+        Pointer p = r.getSNext();
+
+        while (p.hasNext()) {
+            p = ((RegistrationRecord) p).getSNext();
+        }
+
+        return (((StudentHashElement) p)).getStudName();
     }
 
 
