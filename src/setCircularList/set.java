@@ -1,6 +1,7 @@
 package setCircularList;
 
 public class set {
+    //копирующий консутруктор и все методы изменяют входящий объект
     private static class Node{
         int number;
         Node next;
@@ -155,6 +156,7 @@ public class set {
     }
 
     public set union(set a) {
+        //если множества не пересекаюстя
         set set1 = this;
         set set2 = a;
         Node head1 = set1.tail.next;

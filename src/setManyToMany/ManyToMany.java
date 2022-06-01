@@ -1,6 +1,7 @@
 package setManyToMany;
 
 public class ManyToMany {
+    //удаление должно удалять регистрационную запись из двух списков
     private StudentHash studHash;
     private CourseHash cHash;
 
@@ -69,11 +70,10 @@ public class ManyToMany {
         while (p.hasNext()) {
             p = ((RegistrationRecord) p).getCNext();
         }
-
         return (((CourseHashElement) p)).getCourse();
     }
 
-    private String findStudent(RegistrationRecord r){
+    private String findStudent(RegistrationRecord r) {
         Pointer p = r.getSNext();
 
         while (p.hasNext()) {

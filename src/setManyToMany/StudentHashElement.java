@@ -1,6 +1,7 @@
 package setManyToMany;
 
 public class StudentHashElement extends Pointer {
+    //имя - массив чаров
     private RegistrationRecord next;
     private String studName;
 
