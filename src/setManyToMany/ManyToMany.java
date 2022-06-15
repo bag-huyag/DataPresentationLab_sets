@@ -1,6 +1,7 @@
 package setManyToMany;
 
 public class ManyToMany {
+    //удаление должно удалять регистрационную запись из двух списков
     private StudentHash studHash;
     private CourseHash cHash;
 
