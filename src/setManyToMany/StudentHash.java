@@ -1,13 +1,14 @@
 package setManyToMany;
 
 public class StudentHash {
-    StudentHashElement[] array;
+    private StudentHashElement[] array;
+    private final static int SIZE = 10;
 
     public StudentHash(int a){
         array = new StudentHashElement[a];
     }
 
-    public void insert(String name) {
+    public void insert(char[] name) {
         int place = hashFunc(name, 0);
         int number = place;
         int counter = 0;
@@ -34,50 +35,88 @@ public class StudentHash {
         }
     }
 
-    public void delete(String name) {
+    public void insert(String str) {
+        if (str.length() > SIZE) return;
+        insert(convertStringToCharArray(str));
+    }
+
+    public void delete(char[] name) {
         int temp = search(name);
         if (temp != -1){
-            array[temp].setStudName("\u0000");
+            array[temp].getStudName()[0] = '\u0000';
         }
     }
 
-    public StudentHashElement member(String name) {
+    public void delete(String str) {
+        if (str.length() > SIZE) return;
+        delete(convertStringToCharArray(str));
+    }
+
+    public StudentHashElement member(char[] name) {
         int t = search(name);
         return t == -1 ? null : array[t];
     }
 
+    public StudentHashElement member(String str) {
+        if (str.length() > SIZE) return null;
+        return member(convertStringToCharArray(str));
+    }
+
+
     public void print() {
         for (int i = 0; i < array.length; i++){
-            System.out.print(array[i].getStudName() + " | ");
+            array[i].printName();
         }
         System.out.println();
     }
 
-    private int hashFunc(String name, int q) {
+    private int hashFunc(char[] name, int q) {
         int sum = q;
-        for (int i = 0; i < name.length(); i++){
-            sum += name.charAt(i);
+        for (int i = 0; i < name.length; i++){
+            sum += name[i];
         }
         return sum % array.length;
     }
 
-    private boolean isDeleted(String a){
-        return a.startsWith("\u0000");
+
+    public boolean isDeleted(char[] a){
+        return a[0] == '\u0000';
     }
 
-    private int search(String name) {
+    public static boolean compareCharArrays(char[] a, char[] b){
+        for (int i = 0; i < SIZE; i++){
+            if (a[i] != b[i])
+                return false;
+        }
+        return true;
+    }
+
+
+    private int search(char []name) {
         int place = hashFunc(name, 0);
         int start = place;
         int counter = 0;
         place = hashFunc(name, ++counter);
 
         while (array[place] != null || place != start){
-            if ((array[place].getStudName().equals(name))) {
+            if (compareCharArrays(array[place].getStudName(), name)) {
                 return place;
             }
             place = hashFunc(name, ++counter);
         }
+
         return -1;
     }
 
+    public static char[] convertStringToCharArray(String str){
+        char[] name = new char[SIZE];
+        copyCharArrays(str.toCharArray(), name);
+        return name;
+    }
+
+    private static void copyCharArrays(char[] from, char[] to){
+        for (int i = 0; i < from.length; i++){
+            to[i] = from[i];
+        }
+    }
 }

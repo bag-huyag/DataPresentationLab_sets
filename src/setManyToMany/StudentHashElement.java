@@ -2,19 +2,15 @@ package setManyToMany;
 
 public class StudentHashElement extends Pointer {
     private RegistrationRecord next;
-    private String studName;
+    private char[] studName;
 
-    public StudentHashElement(String s, RegistrationRecord n) {
+    public StudentHashElement(char[] s, RegistrationRecord n) {
         studName = s;
         next = n;
     }
 
-    public String getStudName() {
+    public char[] getStudName() {
         return studName;
-    }
-
-    public void setStudName(String s) {
-        studName = s;
     }
 
     public void setNext(RegistrationRecord n) {
@@ -23,5 +19,17 @@ public class StudentHashElement extends Pointer {
 
     public RegistrationRecord getNext() {
         return next;
+    }
+
+    public void printName(){
+        char[] name = this.getStudName();
+        int counter = 0;
+        for (int i = 0; i < name.length; i++){
+            if (name[i] != '\u0000'){
+                System.out.print(name[i]);
+            }
+            else counter ++;
+        }
+        if (counter != 10) System.out.print(" ");
     }
 }
