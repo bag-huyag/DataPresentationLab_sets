@@ -28,6 +28,11 @@ public class ManyToMany {
         CourseHashElement n = cHash.member(course);
         if(n == null) return;
 
+        if (onCourse(n,name)){
+            System.out.println(name + " is already enrolled");
+            return;
+        }
+
         RegistrationRecord temp = new RegistrationRecord(
                 n.getNext() == null ? n : n.getNext(),
                 c.getNext() == null ? c : c.getNext());
@@ -71,56 +76,41 @@ public class ManyToMany {
         if(c == null) return;
         CourseHashElement n = cHash.member(course);
         if(n == null) return;
-        RegistrationRecord temp;
 
         //предыдущая запись, перед интересующей нас записью со стороны курса
         //если нужная нам запись ялвяется первой на данном курсе
-        if (StudentHash.compareCharArrays(findStudent(n.getNext()).getStudName(), StudentHash.convertStringToCharArray(name))){
-            if (n.getNext().hasNext()){
-                RegistrationRecord temp2 = n.getNext();
-                if (temp2.getCNext().hasNext()){
-                    n.setNext((RegistrationRecord) temp2.getCNext());
-                }
-                else n.setNext(null);
-            }
-            else n.setNext(null);
+        Pointer result = searchPrevStudent(n, name);
+        if (result == null) return;
+
+        if (result.hasNext()){
+            RegistrationRecord r1 = (RegistrationRecord) result;
+            //если нужная нам запись последняя в кольце курса, то ссылаемся на сам курс
+            if (!r1.getCNext().hasNext()) r1.setCNext(n);
+            else r1.setCNext(((RegistrationRecord) r1.getCNext()).getCNext());
         }
         else {
-            RegistrationRecord r1 = searchPrevStudent(n,name);
-            if (r1 == null) return;
-            //если нужная нам запись последняя в кольце курса, то ссылаемся на сам курс
-            if (!r1.getCNext().hasNext()){
-                r1.setCNext(n);
-            }
-            else{
-                temp = (RegistrationRecord) r1.getCNext();
-                r1.setCNext(temp.getCNext());
+            if (n.getNext().hasNext()){
+                RegistrationRecord temp2 = n.getNext();
+                if (temp2.getCNext().hasNext()) n.setNext((RegistrationRecord) temp2.getCNext());
+                else n.setNext(null);
             }
         }
 
         //предыдущая запись, перед интересующей нас записью со стороны студента
         //если нужная нам запись ялвяется первой у данного студента
-        if (findCourse(c.getNext()).getCourse() == course){
-            if (c.getNext().hasNext()){
-                RegistrationRecord temp2 = c.getNext();
-                if (temp2.getSNext().hasNext()){
-                    c.setNext((RegistrationRecord) temp2.getSNext());
-                }
-                else c.setNext(null);
-            }
-            else c.setNext(null);
-        }
-        else{
-            RegistrationRecord r2 = searchPrevCourse(c,course);
-            if (r2 == null) return;
+        result = searchPrevCourse(c, course);
+        if (result == null) return;
+
+        if (result.hasNext()){
+            RegistrationRecord r2 = (RegistrationRecord) result;
             //если нужная нам запись последняя в кольце курса, то ссылаемся на сам курс
-            if (!r2.getSNext().hasNext()){
-                r2.setSNext(c);
-            }
-            else{
-                temp = (RegistrationRecord) r2.getCNext();
-                r2.setCNext(temp.getSNext());
-            }
+            if (!r2.getSNext().hasNext()) r2.setSNext(c);
+            else r2.setSNext(((RegistrationRecord) r2.getSNext()).getSNext());
+        }
+        else {
+            RegistrationRecord temp2 = c.getNext();
+            if (temp2.getSNext().hasNext()) c.setNext((RegistrationRecord) temp2.getSNext());
+            else c.setNext(null);
         }
     }
 
@@ -135,32 +125,24 @@ public class ManyToMany {
 
         while (temp.hasNext()){
             //найти курс, на который записан студент
-            CourseHashElement course = ((RegistrationRecord) temp).getCNext().hasNext() ? findCourse((RegistrationRecord) ((RegistrationRecord) temp).getCNext()) : (CourseHashElement) ((RegistrationRecord) temp).getCNext();
+            CourseHashElement course = ((RegistrationRecord) temp).getCNext().hasNext() ?
+                    findCourse((RegistrationRecord) ((RegistrationRecord) temp).getCNext()) :
+                    (CourseHashElement) ((RegistrationRecord) temp).getCNext();
 
-            //искомая запись первая на курсе
-            char[] fst = findStudent(course.getNext()).getStudName();
-            char[] snd = StudentHash.convertStringToCharArray(name);
-            if ((StudentHash.compareCharArrays(fst, snd))){
-                if (course.getNext().getCNext().hasNext()){
-                    course.setNext((RegistrationRecord) course.getNext().getCNext());
-                }
-                else course.setNext(null);
-                temp = ((RegistrationRecord) temp).getSNext();
-                continue;
-            }
+            Pointer result = searchPrevStudent(course, name);
+            if (result == null) continue;
 
-
-            RegistrationRecord temp2 = searchPrevStudent(course,name);
-            if (temp2 == null) {
-                course.setNext((RegistrationRecord) course.getNext().getCNext());
-                temp = ((RegistrationRecord) temp).getCNext();
-                continue;
-            }
-
-            if (!temp2.getCNext().hasNext())
-                temp2.setCNext(c);
-            else {
+            //if the previous is not Course, but record
+            if (result.hasNext()){
+                RegistrationRecord temp2 = (RegistrationRecord) result;
                 temp2.setCNext(((RegistrationRecord)temp2.getCNext()).getCNext());
+            }
+            else {
+                //if there are other registrations on this course
+                if (course.getNext().getCNext().hasNext()) course.setNext((RegistrationRecord) course.getNext().getCNext());
+
+                //only one reg and it should be deleted
+                else course.setNext(null);
             }
             temp = ((RegistrationRecord) temp).getSNext();
         }
@@ -171,9 +153,8 @@ public class ManyToMany {
     private CourseHashElement findCourse(RegistrationRecord r){
         Pointer p = r.getCNext();
 
-        while (p.hasNext()) {
+        while (p.hasNext())
             p = ((RegistrationRecord) p).getCNext();
-        }
 
         return ((CourseHashElement) p);
     }
@@ -181,35 +162,44 @@ public class ManyToMany {
     private StudentHashElement findStudent(RegistrationRecord r){
         Pointer p = r.getSNext();
 
-        while (p.hasNext()) {
+        while (p.hasNext())
             p = ((RegistrationRecord) p).getSNext();
-        }
 
         return (((StudentHashElement) p));
     }
 
-    private RegistrationRecord searchPrevStudent(CourseHashElement s, String name){
+    private Pointer searchPrevStudent(CourseHashElement s, String name){
         Pointer p = s.getNext();
-        Pointer p2 = null;
+        Pointer p2 = s;
 
         while (p.hasNext()) {
-            if (StudentHash.compareCharArrays(findStudent((RegistrationRecord) p).getStudName(), StudentHash.convertStringToCharArray(name))){
-                return (RegistrationRecord)p2;
-            }
+            if (StudentHash.compareCharArrays(findStudent((RegistrationRecord) p).getStudName(), StudentHash.convertStringToCharArray(name)))
+                return p2;
             p2 = p;
             p = ((RegistrationRecord) p).getCNext();
         }
         return null;
     }
 
-    private RegistrationRecord searchPrevCourse(StudentHashElement s, int course){
+    private boolean onCourse(CourseHashElement s, String name){
         Pointer p = s.getNext();
-        Pointer p2 = null;
+        if(p == null) return false;
 
         while (p.hasNext()) {
-            if (findCourse((RegistrationRecord) p).getCourse() == course){
-                return (RegistrationRecord)p2;
-            }
+            if (StudentHash.compareCharArrays(findStudent((RegistrationRecord) p).getStudName(), StudentHash.convertStringToCharArray(name)))
+                return true;
+            p = ((RegistrationRecord) p).getCNext();
+        }
+        return false;
+    }
+
+    private Pointer searchPrevCourse(StudentHashElement s, int course){
+        Pointer p = s.getNext();
+        Pointer p2 = s;
+
+        while (p.hasNext()) {
+            if (findCourse((RegistrationRecord) p).getCourse() == course)
+                return p2;
             p2 = p;
             p = ((RegistrationRecord) p).getSNext();
         }
