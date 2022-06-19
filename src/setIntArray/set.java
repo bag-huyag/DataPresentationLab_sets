@@ -2,7 +2,7 @@ package setIntArray;
 
 
 public class set {
-    private static class position{
+    public static class position{
         int index;
         int pos;
 
@@ -26,7 +26,7 @@ public class set {
         if (start < 0){
             int negativeLen = start >= -31? 1 : start/32;
             int positiveLen = end <= 31 ? 1 : end/32;
-            array = new int[negativeLen + positiveLen];
+            array = new int[Math.abs(negativeLen) + positiveLen];
             zeroPosition = positiveLen;
         }
 
@@ -269,17 +269,18 @@ public class set {
         return !((array[q.index] & mask) == 0);
     }
 
-    private position findInArray(int q){
+    public position findInArray(int q){
+        q = Math.abs(q);
+
+        //если старт в 0
         if (start == 0)
             return new position(q / 32, q % 32);
 
-        if (start < 0){
-            if (q < 0)
-                return new position(q * (-1) / 32, q * (-1) % 32);
-
+        //если старт меньше нуля
+        if (start < 0)
             return new position(zeroPosition + q/32, q%32);
-        }
 
+        //если старт > 0
         return new position((q - start) / 32, (q - start) % 32);
     }
 

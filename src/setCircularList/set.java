@@ -31,6 +31,12 @@ public class set {
     }
 
     public void insert(int a){
+        /*
+        Если список пустой
+        Если в списке только 1 элемент и этот элемент больше тейла
+        Если в списке только 1 элемент и этот элемент меньше тейла
+        Если элемент больше хвоста, не меняя хвост вставляем элемент
+         */
         if (tail == null){
             tail = new Node(a, null);
             tail.next = tail;
@@ -73,13 +79,16 @@ public class set {
     }
 
     public void delete(int a){
+        /*
+        если пустое множество - ретерн
+        если нужно удалить элемент в хвосте и в множестве НЕ один элемент - ссылки перекинуть
+        если нужно удалить элемент в хвосте и в множестве один элемент - tail = null
+        если элемент не в хвосте = ищем предыдущий и перекижываем ссылки
+         */
         if (tail == null) return;
         if (a == tail.number) {
             if (tail != tail.next){
                 tail = tail.next;
-
-                if (tail.next.number == a)
-                    tail.next = null;
                 return;
             }
 
@@ -157,6 +166,13 @@ public class set {
 
     public set union(set a) {
         //если множества не пересекаюстя
+        /*
+        создаем указатели на множества и на их слеюудщие элементы после хвостов
+        создаем новое множество, хвост которого будет наименьшим из стартов
+        переходим на некст в созданынх указателях, если надо
+        в цикле идем по двум множествам, до конца одного из них, копируя наименьший элемент в результирующее множество
+        остаток копируем в реузльтирующее множество
+         */
         set set1 = this;
         set set2 = a;
         Node head1 = set1.tail.next;
@@ -200,12 +216,73 @@ public class set {
         return resultSet;
     }
 
+    public set Intersection(set a){
+        /*
+        проверить не нулевые ли множества и пересекаются ли эти множества
+        определить наименьшее и наибольшее множество
+        найти начало наибольшего в наименьшем start
+        найти конец наименьшего в наибольшем end
+        создать новое множество и запоминаем его хвост
+        пойти циклом от start до end копируя по очереди элементы из множеств
+         */
+        if (a == null || tail == null) throw new myException("set is empty");
+        if (a.tail.next.number > tail.number || tail.next.number > a.tail.number) return null;
+
+        set biggerSet = a.tail.next.number < tail.next.number ? this: a;
+        set smallerSet = a.tail.next.number >= tail.next.number ? this: a;
+        System.out.println(smallerSet.tail.number);
+        System.out.println(biggerSet.tail.number);
+
+        Node biggerSetStart = biggerSet.tail.next;
+
+        Node temp = smallerSet.searchPlaceForInsert(smallerSet.tail, biggerSet.tail.next.number);
+        Node smallerSetStart = temp == null ? smallerSet.tail.next : temp.next;
+
+        set resultSet = new set();
+        resultSet.tail = new Node(biggerSetStart.number, null);
+        temp = resultSet.tail;
+
+        if (smallerSetStart.number == biggerSetStart.number) smallerSetStart = smallerSetStart.next;
+        biggerSetStart = biggerSetStart.next;
+
+        while (smallerSetStart != smallerSet.tail && biggerSetStart != biggerSet.tail) {
+            if (smallerSetStart.number > biggerSetStart.number) {
+                temp.next = new Node(biggerSetStart.number, null);
+                biggerSetStart = biggerSetStart.next;
+            }
+            else {
+                temp.next = new Node(smallerSetStart.number, null);
+                if (smallerSetStart.number == biggerSetStart.number) biggerSetStart = biggerSetStart.next;
+                smallerSetStart = smallerSetStart.next;
+            }
+            temp = temp.next;
+        }
+
+        if (smallerSetStart == smallerSet.tail){
+            if (smallerSetStart.number == biggerSetStart.number){
+                resultSet.tail = new Node(biggerSetStart.number, resultSet.tail);
+            }
+        }
+
+        return resultSet;
+    }
+
+    public void difference(set a){
+        /*
+        проверяем на нулл
+
+         */
+    }
+
 
     private Node searchPrev(Node pos, int n){
+        //создаем два указателя - один запаздывающий
+        //если не запаздывающий равен искомому элементу - возрващаем запаздывающий
+        //в цикле сравниавем элементы
+        //если в конце цикла не запаздывающий равен нашей искомой позиции - возвращаем запаздывающий
         Node temp = pos;
         Node temp2 = pos.next;
-        if (temp2.number == n)
-            return temp;
+        if (temp2.number == n) return temp;
 
         while (temp2 != pos){
             if (temp2.number == n)
@@ -222,8 +299,12 @@ public class set {
     }
 
     private Node searchPlaceForInsert(Node pos, int n){
+        /*
+        если искомая позиция уже есть в нашей позиции - возвращаем ее
+        если нет - проходим по циклу с запаздывающим указателем
+         */
         if (pos.number == n) return pos;
-        Node temp = pos;
+        Node temp = null;
         Node temp2 = pos.next;
         while (temp2 != pos){
             if (temp2.number >= n)

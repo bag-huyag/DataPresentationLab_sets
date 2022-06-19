@@ -78,9 +78,8 @@ public class dictionary {
         if (array[place].name == null) return;
 
         if (compareCharArrays(array[place].name, name)){
-            if (array[place].name == null){
+            if (array[place].next == null){
                 array[place].name = null;
-                array[place].next = null;
             }
             else {
                 array[place].setName(array[place].next.name);

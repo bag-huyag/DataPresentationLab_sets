@@ -22,13 +22,12 @@ public class set {
             }
 
             setElement temp1 = search(array[i][0]);
-            setElement temp2 = search(array[i][1]);
-
             if (temp1.getKey() != array[i][0]) {
                 temp1.setId(new setElement(null, null, array[i][0], 0));
                 temp1 = temp1.getId();
             }
 
+            setElement temp2 = search(array[i][1]);
             if (temp2.getKey() != array[i][1]){
                 temp2.setId(new setElement(null, null, array[i][1], 0));
                 temp2 = temp2.getId();

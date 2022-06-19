@@ -5,7 +5,7 @@ public class dictionary {
     private final static int SIZE = 10;
 
     public dictionary(int a){
-        array = new char[a/ SIZE][];
+        array = new char[SIZE][];
     }
 
     public void insert(char[] name) {
@@ -28,7 +28,7 @@ public class dictionary {
                 deleted = place;
             }
 
-            else place = hashFunc(name,counter++);
+            else place = hashFunc(name,++counter);
         }
 
         if (deleted != -1){
@@ -79,8 +79,7 @@ public class dictionary {
         for (int i = 0; i < name.length; i++){
             sum += name[i];
         }
-        int temp = sum % array.length;
-        return temp;
+        return sum % array.length;
     }
 
     private char[] convertStringToCharArray(String str){
@@ -109,6 +108,8 @@ public class dictionary {
 
     private void printName(char[] name){
             if (name == null) return;
+            if (name[0] == '\u0000') return;
+
             int counter = 0;
             for (int i = 0; i < name.length; i++){
                 if (name[i] != '\u0000'){
